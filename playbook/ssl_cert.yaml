@@ -1,0 +1,38 @@
+---
+
+- name: Configure SSL with let's encrypt
+  hosts: webserver
+  become: yes
+
+  tasks:
+    - name: Install certbot and dependencies
+      ansible.builtin.apt:
+        name: 
+          - certbot
+          - python3-certbot-nginx
+        state: present
+
+
+    - name: Check if certificate exists
+      ansible.builtin.shell: |
+        certbot certificates | grep -q 'altschool.oyameogbeche.cloud'
+      register: cert_check
+      ignore_errors: true
+
+
+    - name: Get SSL cert using certbot 
+      ansible.builtin.command: >
+       certbot --nginx --agree-tos --email oyogbeche@gmail.com
+       --redirect -d altschool.oyameogbeche.cloud 
+      when: cert_check.rc != 0
+
+
+    - name: Add cron job to automate SSL renewal
+      ansible.builtin.cron: 
+        name: 'monthly cron job'
+        minute: '0'
+        hour: '0'
+        day: '1'
+        month: '*'
+        weekday: '*'
+        job: '/usr/bin/certbot renew --quiet  && systemctl reload nginx'

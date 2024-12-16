@@ -1,0 +1,26 @@
+---
+
+- name: 'Setup Webserver'
+  hosts: webserver
+  become: yes
+  tasks:
+    - name:
+      'Ensure nginx is installed'
+      ansible.builtin.apt:
+        name: nginx
+        state: latest
+
+    - name: 'Ensure nginx service is running'
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
+         
+    - name: 'Copy website files'
+      ansible.builtin.copy:
+        src: ../website/
+        dest: /var/www/html 
+        owner: www-data
+        group: www-data
+        mode: '0644'    
+
