@@ -4,8 +4,7 @@
   hosts: webserver
   become: yes
   tasks:
-    - name:
-      'Ensure nginx is installed'
+    - name: 'Ensure nginx is installed'
       ansible.builtin.apt:
         name: nginx
         state: latest
